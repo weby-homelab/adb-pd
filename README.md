@@ -1,5 +1,3 @@
-# 🛡️ ADB-PD (Приватний DNS Adblock)
-
 <p align="center">
   <a href="README_ENG.md">
     <img src="https://img.shields.io/badge/🇬🇧_English-00D4FF?style=for-the-badge&logo=readme&logoColor=white" alt="English README">
@@ -10,6 +8,9 @@
 </p>
 
 <br>
+
+
+# 🛡️ ADB-PD (Приватний DNS Adblock)
 
 **Високопродуктивний DNS-over-HTTPS/TLS/QUIC резолвер з професійною адмін-панеллю у стилі Glassmorphism.**
 
