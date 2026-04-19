@@ -34,7 +34,7 @@ graph TD
     end
 
     subgraph CoreEngine ["⚡ ADB-PD Core Processing"]
-        direction TB
+        direction LR
         AuthGate{"🛡 Security<br/>Gatekeeper"}
         
         subgraph Logic ["Processing Logic"]
