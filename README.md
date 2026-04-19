@@ -15,6 +15,47 @@
 
 ---
 
+## 🏗 System Architecture (04.2026)
+
+```mermaid
+graph TD
+    subgraph "External Traffic"
+        C[Clients / Devices]
+        U1[Google DNS]
+        U2[Cloudflare DNS]
+        U3[Quad9]
+    end
+
+    subgraph "ADB-PD Node (Docker)"
+        subgraph "Entry Points"
+            L53[DNS Listener :53]
+            DoH[DoH/DoT Endpoint]
+            UI[Glassmorphism Dashboard :443]
+        end
+
+        subgraph "Processing Engine"
+            ACL[ACL & Filter Engine]
+            Cache[(Optimistic Cache)]
+            PR[Parallel Resolver]
+        end
+    end
+
+    C --> L53
+    C --> DoH
+    C --> UI
+
+    L53 --> ACL
+    DoH --> ACL
+    ACL --> Cache
+    Cache -->|Miss| PR
+    PR --> U1
+    PR --> U2
+    PR --> U3
+    PR -->|Fastest Wins| Cache
+```
+
+---
+
 ## ✨ Key Features / Ключові можливості
 
 ### 🚀 Performance & Logic / Продуктивність та логіка
@@ -53,32 +94,17 @@ docker run -d --name adb-pd \
   webyhomelab/adb-pd:latest
 ```
 
-### Configuration / Налаштування
-Copy `app/config.yaml.example` to `config.yaml` and adjust your settings:
-```yaml
-dns:
-  port: 53
-  upstreams:
-    - https://dns.google/dns-query
-    - 1.1.1.1
-auth:
-  password: "your_secure_password"
-tls:
-  enabled: true
-  cert_path: "/etc/letsencrypt/live/your-domain.com/fullchain.pem"
-```
-
----
-
-## 📊 Monitoring / Моніторинг
-The dashboard is available at `https://your-server-ip:443/` (or the port specified in config).
-
 ---
 
 ## 🤝 Contribution
-Developed with ❤️ by **AddMax**. Feel free to fork and submit Pull Requests!
+Developed with ❤️ by **Weby Homelab**. Feel free to fork and submit Pull Requests!
 
 ---
 
 ## 📜 License
 MIT License. Free for personal and commercial use.
+
+<p align="center">
+  Made with ❤️ in Kyiv under air raid sirens and blackouts<br>
+  <strong>© 2026 Weby Homelab</strong>
+</p>
