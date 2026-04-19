@@ -2,20 +2,24 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Currently, we only support security updates for the latest stable branch.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Version | Supported |
+| ------- | --------- |
+| 0.1.x   | ✅        |
+| < 0.1   | ❌        |
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+We take the security of **ADB-PD** seriously. If you discover a security vulnerability, please do not open a public issue. Instead, follow these steps:
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+1. **Email us:** Send a detailed report to **rekvizitor.ua@gmail.com**.
+2. **Details:** Include a description of the vulnerability, steps to reproduce, and any potential impact.
+3. **Response:** You can expect an initial response within **48 hours**.
+4. **Disclosure:** We follow coordinated vulnerability disclosure. We ask you to keep the report confidential until we have had a chance to fix the issue and release a new version.
+
+Thank you for helping keep ADB-PD secure!
+
+<p align="center">
+  🛡️ <strong>© 2026 Weby Homelab</strong>
+</p>
