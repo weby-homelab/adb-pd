@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  adb-pd:
+    build: .
+    container_name: adb-pd
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./app/config.yaml:/app/config.yaml
+      - /var/log/adb-pd.log:/var/log/dna-admin.log
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,65 @@
+auth:
+  password: "admin"
+cache:
+  enabled: true
+  size: 1000
+dns:
+  allowed_clients:
+  - test
+  - a6
+  - a6-chrm
+  - 46.224.186.236
+  - 176.111.178.9
+  - a52-chrm
+  - test.srvrs.online
+  bind_host: 0.0.0.0
+  blocked_hosts: []
+  bootstrap_dns:
+  - 1.1.1.1
+  - 76.76.2.1
+  - 8.8.4.4
+  - 9.9.9.10
+  - 149.112.112.10
+  - 208.67.222.222
+  fallback_dns:
+  - https://dns10.quad9.net/dns-query
+  - https://doh.opendns.com/dns-query
+  port: 53
+  ratelimit: 0
+  upstream_dns:
+  - https://security.cloudflare-dns.com/dns-query
+  - quic://p1.freedns.controld.com
+  - '[/youtube.com/]https://dns.google/dns-query'
+  - '[/google.com/]https://dns.google/dns-query'
+  - '[/google.com.ua/]https://dns.google/dns-query'
+  - '[/googleapis.com/]https://dns.google/dns-query'
+  - '[/googlevideo.com/]https://dns.google/dns-query'
+  - '[/gstatic.com/]https://dns.google/dns-query'
+  - '[/ggpht.com/]https://dns.google/dns-query'
+  - '[/googleusercontent.com/]https://dns.google/dns-query'
+  - '[/pool.ntp.org/]1.1.1.1'
+filtering:
+  blocking_mode: NXDOMAIN
+  blocklists:
+  - enabled: true
+    name: AdAway Default Blocklist
+    url: https://adguardteam.github.io/HostlistsRegistry/assets/filter_2.txt
+  - enabled: true
+    name: UKR-Combi
+    url: https://raw.githubusercontent.com/ukrainianfilters/lists/main/combined/combined.txt
+  - enabled: true
+    name: UKR-Sec
+    url: https://raw.githubusercontent.com/braveinnovators/ukrainian-security-filter/refs/heads/main/lists/adblock.txt
+  enabled: true
+  user_rules:
+  - '||ya.ru^'
+  - '||yandex.ru^'
+  - '||*NetisRouter_64eeb7eec5d4^'
+tls:
+  certificate_path: /etc/letsencrypt/live/srvrs.online/fullchain.pem
+  enabled: true
+  force_https: true
+  port_dot: 853
+  port_https: 443
+  private_key_path: /etc/letsencrypt/live/srvrs.online/privkey.pem
+  server_name: srvrs.online

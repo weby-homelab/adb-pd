@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADB-PD Admin | v0.3</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg: #0a0c10;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #00d2ff;
+            --danger: #ff4d4d;
+            --success: #00ff88;
+            --text: #e0e0e0;
+        }
+
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; display: flex; min-height: 100vh; }
+
+        #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
+        .auth-card { background: var(--glass); border: 1px solid var(--border); padding: 3rem; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; display: none; }
+        
+        .sidebar { width: 260px; background: rgba(15, 18, 25, 0.95); border-right: 1px solid var(--border); padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; position: sticky; top: 0; height: 100vh; box-sizing: border-box; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: 2rem; padding: 0 1rem; }
+        .nav-item { padding: 0.8rem 1rem; border-radius: 8px; cursor: pointer; color: #888; transition: 0.2s; display: flex; align-items: center; gap: 0.8rem; font-size: 0.9rem; }
+        .nav-item:hover, .nav-item.active { background: var(--glass); color: var(--accent); }
+
+        .main { flex: 1; padding: 2rem; width: calc(100% - 260px); box-sizing: border-box; }
+        .section { display: none; animation: fadeIn 0.3s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--glass); border: 1px solid var(--border); padding: 1.5rem; border-radius: 16px; border-left: 4px solid var(--accent); }
+        .stat-val { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; }
+        .stat-label { color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .grid-widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .widget { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+        .widget-header { padding: 1rem 1.5rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .widget-body { padding: 1rem; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; background: rgba(255, 255, 255, 0.02); color: #888; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; }
+        
+        .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .badge-blocked { background: rgba(255,77,77,0.1); color: var(--danger); }
+        .badge-allowed { background: rgba(0,255,136,0.1); color: var(--success); }
+        .badge-cached { background: rgba(0,210,255,0.1); color: var(--accent); }
+        .badge-rewrite { background: rgba(255,200,0,0.1); color: #ffc800; }
+
+        input, textarea { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 0.8rem 1rem; border-radius: 12px; width: 100%; outline: none; box-sizing: border-box; margin-bottom: 1rem; }
+        button { background: var(--accent); color: #000; border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; }
+        button:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        button.danger-btn { background: rgba(255,77,77,0.1); color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 0.4rem 0.8rem; }
+        
+        .progress-row { margin-bottom: 1rem; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem; }
+        .progress-bg { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--accent); transition: 0.5s; }
+
+        .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; padding: 1.5rem; }
+        .client-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 1rem; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <div id="auth-overlay">
+        <div class="auth-card" id="setup-wizard"><h2>🚀 Setup</h2><input type="password" id="setup-password" placeholder="Admin Password"><button onclick="handleSetup()">Set Password</button></div>
+        <div class="auth-card" id="login-form"><h2>🔐 Login</h2><input type="password" id="login-password" placeholder="Password"><button onclick="handleLogin()">Login</button></div>
+    </div>
+
+    <div class="sidebar">
+        <div class="logo">ADB-PD</div>
+        <div class="nav-item active" onclick="showSection('dashboard', this)"><i data-lucide="layout-dashboard"></i> Панель</div>
+        <div class="nav-item" onclick="showSection('blocklists', this)"><i data-lucide="shield-alert"></i> Фільтри</div>
+        <div class="nav-item" onclick="showSection('rules', this)"><i data-lucide="shield"></i> Власні правила</div>
+        <div class="nav-item" onclick="showSection('rewrites', this)"><i data-lucide="edit-3"></i> Перезаписи</div>
+        <div class="nav-item" onclick="showSection('dns-settings', this)"><i data-lucide="server"></i> DNS Сервери</div>
+        <div class="nav-item" onclick="showSection('access', this)"><i data-lucide="users"></i> Доступ</div>
+        <div class="nav-item" onclick="showSection('logs', this)"><i data-lucide="list"></i> Журнал</div>
+        <div style="margin-top:auto; padding: 1rem;"><button onclick="handleLogout()" style="background:none; color:#666; cursor:pointer; width:auto; border:none; padding:0;">Вийти</button></div>
+    </div>
+
+    <div class="main">
+        <!-- Dashboard -->
+        <div id="dashboard" class="section active">
+            <div class="grid-stats">
+                <div class="stat-card"><div class="stat-label">Запити</div><div id="total-queries" class="stat-val">0</div></div>
+                <div class="stat-card" style="border-left-color: var(--danger);"><div class="stat-label">Блоковано</div><div id="blocked-queries" class="stat-val">0</div></div>
+                <div class="stat-card"><div class="stat-label">Затримка</div><div id="avg-time" class="stat-val">0 ms</div></div>
+                <div class="stat-card" style="border-left-color: var(--success);"><div class="stat-label">Правила</div><div id="active-rules" class="stat-val">0</div></div>
+            </div>
+            <div class="widget" style="height: 300px; padding: 1.5rem; margin-bottom: 2rem;"><canvas id="queryChart"></canvas></div>
+            <div class="grid-widgets">
+                <div class="widget"><div class="widget-header">Найактивніші клієнти</div><div class="widget-body" id="top-clients"></div></div>
+                <div class="widget"><div class="widget-header">Найчастіші домени</div><div class="widget-body" id="top-domains"></div></div>
+            </div>
+        </div>
+
+        <!-- Blocklists -->
+        <div id="blocklists" class="section">
+            <div class="widget">
+                <div class="widget-header">Додати список блокування</div>
+                <div style="padding:1.5rem; display:flex; gap:1rem;"><input type="text" id="bl-name" placeholder="Назва" style="margin:0"><input type="text" id="bl-url" placeholder="URL (https://...)" style="margin:0"><button onclick="addBlocklist()" style="width:auto">Додати</button></div>
+            </div>
+            <div class="widget"><table><thead><tr><th>Назва</th><th>Правил</th><th>Дії</th></tr></thead><tbody id="blocklists-body"></tbody></table></div>
+        </div>
+
+        <!-- Custom Rules -->
+        <div id="rules" class="section">
+            <div class="widget">
+                <div class="widget-header">Додати правило фільтрації</div>
+                <div style="padding:1.5rem; display:flex; gap:1rem;"><input type="text" id="new-user-rule" placeholder="||example.com^" style="margin:0"><button onclick="addUserRule()" style="width:auto">Блокувати</button></div>
+            </div>
+            <div class="widget"><div class="widget-header">Власні правила</div><div id="user-rules-list"></div></div>
+        </div>
+
+        <!-- Rewrites -->
+        <div id="rewrites" class="section">
+            <div class="widget">
+                <div class="widget-header">Додати перезапис DNS (Hosts)</div>
+                <div style="padding:1.5rem; display:flex; gap:1rem;"><input type="text" id="rw-domain" placeholder="Домен" style="margin:0"><input type="text" id="rw-ip" placeholder="IP" style="margin:0"><button onclick="addRewrite()" style="width:auto">Додати</button></div>
+            </div>
+            <div class="widget"><table><thead><tr><th>Домен</th><th>Власна IP</th><th>Дії</th></tr></thead><tbody id="rewrites-body"></tbody></table></div>
+        </div>
+
+        <!-- DNS Settings -->
+        <div id="dns-settings" class="section">
+            <div class="widget" style="margin-bottom: 2rem;">
+                <div class="widget-header">Upstream DNS-сервери</div>
+                <div style="padding:1.5rem;">
+                    <p style="font-size:0.8rem; color:#888; margin-bottom:1rem;">Введіть адреси серверів по одній на рядок. Підтримуються: UDP, TCP, tls://, https:// та [/domain/]routing.</p>
+                    <textarea id="upstream-dns" style="height:200px; font-family:monospace;"></textarea>
+                </div>
+            </div>
+            <div class="widget" style="margin-bottom: 2rem;">
+                <div class="widget-header">Резервні DNS-сервери (Fallback)</div>
+                <div style="padding:1.5rem;">
+                    <textarea id="fallback-dns" style="height:80px; font-family:monospace;"></textarea>
+                </div>
+            </div>
+            <div class="widget" style="margin-bottom: 2rem;">
+                <div class="widget-header">Bootstrap DNS-сервери</div>
+                <div style="padding:1.5rem;">
+                    <p style="font-size:0.8rem; color:#888; margin-bottom:1rem;">Використовуються для резолву імен DoH/DoT апстрімів. Тільки IP.</p>
+                    <textarea id="bootstrap-dns" style="height:100px; font-family:monospace;"></textarea>
+                </div>
+            </div>
+            <button onclick="saveDnsSettings()" style="width:200px; margin-bottom:2rem;">Зберегти налаштування</button>
+        </div>
+
+        <!-- Access -->
+        <div id="access" class="section">
+            <div class="widget">
+                <div class="widget-header">Додати клієнта до списку доступу</div>
+                <div style="padding:1.5rem; display:flex; gap:1rem;"><input type="text" id="new-client" placeholder="IP, CIDR або ID" style="margin:0"><button type="button" onclick="addAccessClient()" style="width:auto">Додати</button></div>
+            </div>
+            <div class="widget"><div class="widget-header">Дозволені клієнти</div><div id="access-grid" class="client-grid"></div></div>
+        </div>
+
+        <!-- Logs -->
+        <div id="logs" class="section">
+            <div class="widget">
+                <div style="padding: 1rem;"><input type="text" id="log-search" placeholder="Пошук у журналі..." oninput="updateLogs()" style="margin:0"></div>
+                <div>
+                    <table><thead><tr><th>Час</th><th>Запит</th><th>Відповідь</th><th>Клієнт</th></tr></thead><tbody id="log-body"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let chart;
+
+        async function checkAuth() {
+            const res = await fetch('/api/auth/status');
+            const data = await res.json();
+            if (data.status === 'setup') document.getElementById('setup-wizard').style.display='block';
+            else {
+                const s = await fetch('/api/stats');
+                if (s.status === 401) document.getElementById('login-form').style.display='block';
+                else { document.getElementById('auth-overlay').style.display='none'; initializeApp(); }
+            }
+        }
+
+        async function handleSetup() {
+            const password = document.getElementById('setup-password').value;
+            await fetch('/api/auth/setup', { method: 'POST', body: JSON.stringify({password}) });
+            location.reload();
+        }
+
+        async function handleLogin() {
+            const password = document.getElementById('login-password').value;
+            const res = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({password}) });
+            if (res.ok) location.reload(); else alert('Invalid Password');
+        }
+
+        async function handleLogout() { await fetch('/api/auth/logout', { method: 'POST' }); location.reload(); }
+
+        function initializeApp() {
+            initChart(); updateDashboard(); updateLogs();
+            setInterval(updateDashboard, 3000);
+            setInterval(() => { if(document.getElementById('logs').classList.contains('active')) updateLogs(); }, 3000);
+        }
+
+        function showSection(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(el) el.classList.add('active');
+            if (id === 'blocklists') loadBlocklists();
+            if (id === 'access') loadAccess();
+            if (id === 'rules') loadUserRules();
+            if (id === 'rewrites') loadRewrites();
+            if (id === 'dns-settings') loadDnsSettings();
+            if (id === 'logs') updateLogs();
+        }
+
+        async function loadDnsSettings() {
+            const res = await fetch('/api/dns/settings');
+            const d = await res.json();
+            document.getElementById('upstream-dns').value = d.upstream_dns;
+            document.getElementById('fallback-dns').value = d.fallback_dns;
+            document.getElementById('bootstrap-dns').value = d.bootstrap_dns;
+        }
+
+        async function saveDnsSettings() {
+            const data = {
+                upstream_dns: document.getElementById('upstream-dns').value,
+                fallback_dns: document.getElementById('fallback-dns').value,
+                bootstrap_dns: document.getElementById('bootstrap-dns').value
+            };
+            const res = await fetch('/api/dns/settings/update', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify(data) 
+            });
+            if(res.ok) alert('Налаштування DNS оновлено');
+        }
+
+        async function updateDashboard() {
+            const res = await fetch('/api/stats');
+            if (res.status === 401) return;
+            const d = await res.json();
+            document.getElementById('total-queries').innerText = d.total_queries.toLocaleString();
+            document.getElementById('blocked-queries').innerText = d.blocked_queries.toLocaleString();
+            document.getElementById('avg-time').innerText = d.avg_processing_time_ms + ' ms';
+            document.getElementById('active-rules').innerText = d.active_rules.toLocaleString();
+
+            const renderTop = (id, data, total) => {
+                const el = document.getElementById(id);
+                if(!el) return;
+                el.innerHTML = Object.entries(data).sort((a,b) => b[1]-a[1]).map(([key, val]) => `
+                    <div class="progress-row">
+                        <div class="progress-label"><span>${key}</span><span>${val}</span></div>
+                        <div class="progress-bg"><div class="progress-bar" style="width: ${(val/total*100)||0}%"></div></div>
+                    </div>
+                `).join('');
+            };
+            renderTop('top-clients', d.top_clients, d.total_queries);
+            renderTop('top-domains', d.top_domains, d.total_queries);
+
+            if(chart && d.history) {
+                chart.data.labels = d.history.map(h => h.timestamp);
+                chart.data.datasets[0].data = d.history.map(h => h.total);
+                chart.update('none');
+            }
+        }
+
+        async function updateLogs() {
+            const s = document.getElementById('log-search').value;
+            const res = await fetch(`/api/logs?search=${encodeURIComponent(s)}`);
+            let logs = await res.json();
+            logs = logs.slice(0, 100);
+            
+            document.getElementById('log-body').innerHTML = logs.map(l => {
+                let statusColor = 'var(--success)';
+                let statusText = 'Оброблені';
+                if (l.status === 'BLOCKED') { statusColor = 'var(--danger)'; statusText = 'Заблоковані'; }
+                if (l.status === 'DENIED') { statusColor = 'var(--danger)'; statusText = 'Відхилено (ACL)'; }
+                if (l.status === 'CACHED') { statusColor = 'var(--accent)'; statusText = 'З кешу'; }
+                if (l.status === 'REWRITE') { statusColor = '#ffc800'; statusText = 'Перезапис'; }
+                if (l.status === 'ALLOWED') { statusColor = 'var(--success)'; statusText = 'Дозволено'; }
+                
+                let clientDisplay = l.client;
+                if (l.client.includes(' (')) {
+                    const parts = l.client.split(' (');
+                    clientDisplay = `<span style="font-weight:700; color:var(--text)">${parts[0]}</span><br><small style="color:#888">${parts[1].replace(')', '')}</small>`;
+                } else {
+                    clientDisplay = `<span style="font-weight:700">${l.client}</span>`;
+                }
+
+                return `<tr>
+                    <td style="white-space: nowrap;"><div style="font-size:0.9rem; font-weight:700">${l.time || l.timestamp}</div><small style="color:#666">${l.date || ''}</small></td>
+                    <td><span style="font-weight:700">${l.domain}</span><br><small style="color:#888">Тип: ${l.type}</small></td>
+                    <td>
+                        <span style="font-weight:700; color:${statusColor}">${statusText}</span>
+                        <div style="font-size:0.75rem; color:#888; margin-top:0.2rem;">${l.rule}</div>
+                        <div style="font-size:0.8rem; color:#aaa; margin-top:0.2rem; word-break:break-all;">${l.time_ms} мс | ${l.answer || ''}</div>
+                    </td>
+                    <td style="white-space: nowrap;">${clientDisplay}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function loadBlocklists() {
+            const res = await fetch('/api/blocklists');
+            const lists = await res.json();
+            document.getElementById('blocklists-body').innerHTML = lists.map(l => `
+                <tr><td><b>${l.name}</b><br><small style="color:#666">${l.url}</small></td><td>${l.rule_count}</td><td><button onclick="removeBlocklist('${l.url}')" class="danger-btn">×</button></td></tr>
+            `).join('');
+        }
+        async function removeBlocklist(url) { await fetch('/api/blocklists/remove', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url}) }); loadBlocklists(); }
+        async function addBlocklist() { const name = document.getElementById('bl-name').value; const url = document.getElementById('bl-url').value; await fetch('/api/blocklists/add', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name, url}) }); document.getElementById('bl-name').value = ''; document.getElementById('bl-url').value = ''; loadBlocklists(); }
+
+        async function loadRewrites() {
+            const res = await fetch('/api/rewrites');
+            const lists = await res.json();
+            document.getElementById('rewrites-body').innerHTML = lists.map(l => `
+                <tr><td><b>${l.domain}</b></td><td><code>${l.ip}</code></td><td><button onclick="removeRewrite('${l.domain}')" class="danger-btn">×</button></td></tr>
+            `).join('');
+        }
+        async function addRewrite() { const domain = document.getElementById('rw-domain').value; const ip = document.getElementById('rw-ip').value; await fetch('/api/rewrites/add', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain, ip}) }); document.getElementById('rw-domain').value = ''; document.getElementById('rw-ip').value = ''; loadRewrites(); }
+        async function removeRewrite(domain) { await fetch('/api/rewrites/remove', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain}) }); loadRewrites(); }
+
+        async function loadAccess() {
+            const res = await fetch('/api/access/allowed');
+            const clients = await res.json();
+            document.getElementById('access-grid').innerHTML = clients.map(c => `<div class="client-card"><span style="font-family:monospace; color:var(--accent);">${c}</span><button onclick="removeAccessClient('${c}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2rem;">×</button></div>`).join('');
+        }
+        async function addAccessClient() { 
+            const val = document.getElementById('new-client').value.trim(); 
+            if(!val) return; 
+            const res = await fetch('/api/access/allowed'); 
+            let list = await res.json() || []; 
+            if(!list.includes(val)) { 
+                list.push(val); 
+                await fetch('/api/access/allowed/update', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({clients: list}) }); 
+                document.getElementById('new-client').value = ''; 
+                loadAccess(); 
+            } 
+        }
+        async function removeAccessClient(c) { const res = await fetch('/api/access/allowed'); let list = await res.json() || []; list = list.filter(i => i !== c); await fetch('/api/access/allowed/update', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({clients: list}) }); loadAccess(); }
+
+        async function loadUserRules() {
+            const res = await fetch('/api/rules');
+            const rules = await res.json();
+            document.getElementById('user-rules-list').innerHTML = rules.map(r => `<div style="padding:0.8rem 1rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;"><code style="color:var(--accent)">${r}</code><button onclick="removeUserRule('${r}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2rem;">×</button></div>`).join('');
+        }
+        async function addUserRule() { const rule = document.getElementById('new-user-rule').value.trim(); await fetch('/api/rules/add', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({rule}) }); document.getElementById('new-user-rule').value = ''; loadUserRules(); }
+        async function removeUserRule(rule) { await fetch('/api/rules/remove', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({rule}) }); loadUserRules(); }
+
+        function initChart() {
+            const ctx = document.getElementById('queryChart').getContext('2d');
+            chart = new Chart(ctx, { type:'line', data:{labels:[], datasets:[{label:'Запити', data:[], borderColor:'#00d2ff', tension:0.4, fill:true, backgroundColor:'rgba(0, 210, 255, 0.05)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true, grid:{color:'rgba(255,255,255,0.03)'}},x:{grid:{display:false}}}, plugins:{legend:{display:false}}}});
+        }
+        checkAuth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.log
+*.bin
+venv/
+app/config.yaml
+certs/
+.idea/
