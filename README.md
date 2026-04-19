@@ -1,5 +1,17 @@
-# 🛡️ ADB-PD (Private DNS Adblock)
-**High-performance DNS-over-HTTPS/TLS/QUIC resolver with a pro-grade Glassmorphism Dashboard.**
+# 🛡️ ADB-PD (Приватний DNS Adblock)
+
+<p align="center">
+  <a href="README_ENG.md">
+    <img src="https://img.shields.io/badge/🇬🇧_English-00D4FF?style=for-the-badge&logo=readme&logoColor=white" alt="English README">
+  </a>
+  <a href="README.md">
+    <img src="https://img.shields.io/badge/🇺🇦_Українська-FF4D00?style=for-the-badge&logo=readme&logoColor=white" alt="Українська версія">
+  </a>
+</p>
+
+<br>
+
+**Високопродуктивний DNS-over-HTTPS/TLS/QUIC резолвер з професійною адмін-панеллю у стилі Glassmorphism.**
 
 [![Docker Image Size](https://img.shields.io/docker/image-size/webyhomelab/adb-pd/latest)](https://hub.docker.com/r/webyhomelab/adb-pd)
 [![Docker Pulls](https://img.shields.io/docker/pulls/webyhomelab/adb-pd)](https://hub.docker.com/r/webyhomelab/adb-pd)
@@ -7,51 +19,49 @@
 
 ---
 
-## 🌍 Overview / Огляд
-
-**ADB-PD** is a lightweight, self-hosted DNS solution designed for privacy, speed, and absolute control. It serves as a modern alternative to legacy DNS servers, focusing on encrypted protocols (DoH, DoT) and providing a real-time, aesthetically pleasing management experience.
+## 🌍 Огляд
 
 **ADB-PD** — це легке, приватне DNS-рішення, створене для максимальної швидкості та повного контролю. Це сучасна альтернатива застарілим DNS-серверам, яка фокусується на зашифрованих протоколах (DoH, DoT) та надає зручний інтерфейс у стилі Glassmorphism для моніторингу мережі в реальному часі.
 
 ---
 
-## 🏗 System Architecture (v0.1.0-2026)
+## 🏗 Архітектура системи (v0.1.0-2026)
 
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#00d4ff', 'edgeLabelBackground':'#1a1a1a', 'tertiaryColor': '#1a1a1a'}}}%%
 graph TD
-    subgraph Clients ["🌐 Client Layer"]
-        UserDevice["📱 Personal Devices<br/>(iOS, Android, PC)"]
-        IoTDevice["🏠 Smart Home / IoT"]
-        ServerNode["🖥 Remote Servers"]
+    subgraph Clients ["🌐 Рівень клієнтів"]
+        UserDevice["📱 Персональні пристрої<br/>(iOS, Android, PC)"]
+        IoTDevice["🏠 Розумний будинок / IoT"]
+        ServerNode["🖥 Віддалені сервери"]
     end
 
-    subgraph EntryPoints ["🔒 Secure Access Points"]
-        DNS53["📥 Standard DNS<br/>(UDP/TCP 53)"]
+    subgraph EntryPoints ["🔒 Точки входу"]
+        DNS53["📥 Стандартний DNS<br/>(UDP/TCP 53)"]
         DoH["🚀 DNS-over-HTTPS<br/>(JSON/Wire :443)"]
-        DoT["🔐 DNS-over-TLS<br/>(Port 853)"]
-        UI["🎨 Admin Dashboard<br/>(Glassmorphism SPA)"]
+        DoT["🔐 DNS-over-TLS<br/>(Порт 853)"]
+        UI["🎨 Адмін-панель<br/>(Glassmorphism SPA)"]
     end
 
-    subgraph CoreEngine ["⚡ ADB-PD Core Processing"]
-        direction LR
+    subgraph CoreEngine ["⚡ Ядро обробки ADB-PD"]
+        direction TB
         AuthGate{"🛡 Security<br/>Gatekeeper"}
         
-        subgraph Logic ["Processing Logic"]
-            ACL["📋 ACL & CIDR<br/>Validation"]
-            Filter["🚫 Adblock &<br/>Blacklist Engine"]
-            Cache{"⚡ Optimistic<br/>LRU Cache"}
+        subgraph Logic ["Логіка обробки"]
+            ACL["📋 Валідація<br/>ACL & CIDR"]
+            Filter["🚫 Фільтрація<br/>Adblock & Blacklists"]
+            Cache{"⚡ Оптимістичний<br/>LRU Кеш"}
         end
         
-        subgraph Resolution ["Upstream Handling"]
-            Resolver["📡 Parallel<br/>Recursive Resolver"]
+        subgraph Resolution ["Робота з апстрімами"]
+            Resolver["📡 Паралельний<br/>рекурсивний резолвер"]
             Upstreams["Google | Cloudflare | Quad9"]
         end
     end
 
-    subgraph Monitoring ["📊 Observability"]
-        Metrics["📈 Real-time Stats"]
-        Logs["📝 Live Query Stream"]
+    subgraph Monitoring ["📊 Моніторинг"]
+        Metrics["📈 Статистика в реальному часі"]
+        Logs["📝 Потік запитів (Live)"]
     end
 
     %% Connections
@@ -66,8 +76,8 @@ graph TD
     Cache -- "Cache Hit" --> DNS53
     Cache -- "Cache Miss" --> Resolver
     
-    Resolver ==>|Fastest Response| Upstreams
-    Upstreams -.->|Sync Update| Cache
+    Resolver ==>|Найшвидша відповідь| Upstreams
+    Upstreams -.->|Синхронне оновлення| Cache
     
     Logic -.-> Metrics
     Logic -.-> Logs
@@ -86,35 +96,35 @@ graph TD
 
 ---
 
-## ✨ Key Features / Ключові можливості
+## ✨ Ключові можливості
 
-### 🚀 Performance & Logic / Продуктивність та логіка
-- **Parallel Upstream Resolution:** Queries multiple DNS providers simultaneously (Google, Cloudflare, Quad9) and returns the fastest response.
-- **Optimistic Caching:** Serves expired records from cache while updating them in the background to ensure zero-latency.
-- **Conditional Routing:** Custom rules to route specific domains to specific upstream servers.
+### 🚀 Продуктивність та логіка
+- **Паралельне опитування апстрімів:** Опитує декілька DNS-провайдерів одночасно (Google, Cloudflare, Quad9) та повертає найшвидшу відповідь.
+- **Оптимістичне кешування:** Віддає записи з кешу, термін дії яких закінчився, одночасно оновлюючи їх у фоновому режимі.
+- **Умовна маршрутизація:** Спеціальні правила для перенаправлення конкретних доменів на певні DNS-сервери.
 
-### 🔒 Security & Privacy / Безпека та приватність
-- **Encrypted Protocols:** Native support for **DNS-over-HTTPS (DoH)** and **DNS-over-TLS (DoT)**.
-- **Stealth Mode:** Unauthorized queries are silently dropped, making the server invisible to port scanners.
-- **Robust ACL:** Advanced Access Control Lists based on IP ranges or unique Client IDs.
+### 🔒 Безпека та приватність
+- **Зашифровані протоколи:** Нативна підтримка **DNS-over-HTTPS (DoH)** та **DNS-over-TLS (DoT)**.
+- **Режим Stealth:** Неавторизовані запити просто ігноруються, що робить сервер невидимим для сканерів портів.
+- **Гнучкий ACL:** Просунуті списки контролю доступу на основі IP-діапазонів або Client ID.
 
-### 🎨 Pro-Dashboard / Адмін-панель
-- **Glassmorphism UI:** Modern, responsive SPA dashboard with blur effects and dark mode support.
-- **Live Query Logs:** Real-time stream of DNS requests with detailed timing and resolution data.
-- **Visual Analytics:** Interactive charts showing query volume, block rates, and performance metrics.
+### 🎨 Адмін-панель
+- **Glassmorphism UI:** Сучасна SPA-панель з ефектами розмиття та адаптивним дизайном.
+- **Live-логи:** Потік DNS-запитів у реальному часі з детальною інформацією про час обробки.
+- **Візуальна аналітика:** Інтерактивні графіки обсягу запитів та ефективності фільтрації.
 
 ---
 
-## 🛠 Tech Stack / Стек технологій
+## 🛠 Стек технологій
 - **Backend:** Python 3.12 (FastAPI, Hypercorn, DNslib)
 - **Frontend:** Vanilla JS / Tailwind-inspired CSS / Chart.js
-- **Container:** Docker (Alpine-based for minimal footprint)
+- **Container:** Docker (на базі Alpine)
 
 ---
 
-## 🚀 Deployment / Розгортання
+## 🚀 Розгортання
 
-### Docker (Recommended)
+### Docker (Рекомендовано)
 ```bash
 docker run -d --name adb-pd \
   --network host \
@@ -126,13 +136,13 @@ docker run -d --name adb-pd \
 
 ---
 
-## 🤝 Contribution
-Developed with ❤️ by **Weby Homelab**. Feel free to fork and submit Pull Requests!
+## 🤝 Співпраця
+Розроблено з ❤️ командою **Weby Homelab**. Будемо раді вашим Fork та Pull Request!
 
 ---
 
-## 📜 License
-MIT License. Free for personal and commercial use.
+## 📜 Ліцензія
+MIT License. Вільно для особистого та комерційного використання.
 
 <p align="center">
   Made with ❤️ in Kyiv under air raid sirens and blackouts<br>
