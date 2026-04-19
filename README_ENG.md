@@ -1,5 +1,3 @@
-# 🛡️ ADB-PD (Private DNS Adblock)
-
 <p align="center">
   <a href="README_ENG.md">
     <img src="https://img.shields.io/badge/🇬🇧_English-00D4FF?style=for-the-badge&logo=readme&logoColor=white" alt="English README">
@@ -10,6 +8,8 @@
 </p>
 
 <br>
+
+# 🛡️ ADB-PD (Private DNS Adblock)
 
 **High-performance DNS-over-HTTPS/TLS/QUIC resolver with a pro-grade Glassmorphism Dashboard.**
 
