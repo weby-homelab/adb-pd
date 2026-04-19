@@ -18,7 +18,7 @@
 ## 🏗 System Architecture (04.2026)
 
 ```mermaid
-graph TB
+graph RL
     subgraph "External Traffic"
         C[Clients / Devices]
         U1[Google DNS]
