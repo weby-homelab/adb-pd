@@ -17,43 +17,71 @@
 
 ## 🏗 System Architecture (v0.1.0-2026)
 
- (04.2026)
-
 ```mermaid
-graph RL
-    subgraph "External Traffic"
-        C[Clients / Devices]
-        U1[Google DNS]
-        U2[Cloudflare DNS]
-        U3[Quad9]
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#00d4ff', 'edgeLabelBackground':'#1a1a1a', 'tertiaryColor': '#1a1a1a'}}}%%
+graph TD
+    subgraph Clients ["🌐 Client Layer"]
+        UserDevice["📱 Personal Devices<br/>(iOS, Android, PC)"]
+        IoTDevice["🏠 Smart Home / IoT"]
+        ServerNode["🖥 Remote Servers"]
     end
 
-    subgraph "ADB-PD Node (Docker)"
-        subgraph "Entry Points"
-            L53[DNS Listener :53]
-            DoH[DoH/DoT Endpoint]
-            UI[Glassmorphism Dashboard :443]
-        end
+    subgraph EntryPoints ["🔒 Secure Access Points"]
+        DNS53["📥 Standard DNS<br/>(UDP/TCP 53)"]
+        DoH["🚀 DNS-over-HTTPS<br/>(JSON/Wire :443)"]
+        DoT["🔐 DNS-over-TLS<br/>(Port 853)"]
+        UI["🎨 Admin Dashboard<br/>(Glassmorphism SPA)"]
+    end
 
-        subgraph "Processing Engine"
-            ACL[ACL & Filter Engine]
-            Cache[(Optimistic Cache)]
-            PR[Parallel Resolver]
+    subgraph CoreEngine ["⚡ ADB-PD Core Processing"]
+        direction TB
+        AuthGate{"🛡 Security<br/>Gatekeeper"}
+        
+        subgraph Logic ["Processing Logic"]
+            ACL["📋 ACL & CIDR<br/>Validation"]
+            Filter["🚫 Adblock &<br/>Blacklist Engine"]
+            Cache{"⚡ Optimistic<br/>LRU Cache"}
+        end
+        
+        subgraph Resolution ["Upstream Handling"]
+            Resolver["📡 Parallel<br/>Recursive Resolver"]
+            Upstreams["Google | Cloudflare | Quad9"]
         end
     end
 
-    C --> L53
-    C --> DoH
-    C --> UI
+    subgraph Monitoring ["📊 Observability"]
+        Metrics["📈 Real-time Stats"]
+        Logs["📝 Live Query Stream"]
+    end
 
-    L53 --> ACL
-    DoH --> ACL
-    ACL --> Cache
-    Cache -->|Miss| PR
-    PR --> U1
-    PR --> U2
-    PR --> U3
-    PR -->|Fastest Wins| Cache
+    %% Connections
+    UserDevice & IoTDevice & ServerNode ==> DNS53 & DoH & DoT
+    UI --- AuthGate
+    
+    DNS53 & DoH & DoT --> AuthGate
+    AuthGate --> ACL
+    ACL --> Filter
+    Filter --> Cache
+    
+    Cache -- "Cache Hit" --> DNS53
+    Cache -- "Cache Miss" --> Resolver
+    
+    Resolver ==>|Fastest Response| Upstreams
+    Upstreams -.->|Sync Update| Cache
+    
+    Logic -.-> Metrics
+    Logic -.-> Logs
+    
+    %% Styling
+    classDef client fill:#2a2a2a,stroke:#555,stroke-width:2px,color:#fff;
+    classDef secure fill:#1a3a5a,stroke:#00d4ff,stroke-width:2px,color:#fff;
+    classDef core fill:#1e1e1e,stroke:#7b2ff7,stroke-width:2px,color:#fff;
+    classDef monitor fill:#1a332a,stroke:#00ff88,stroke-width:2px,color:#fff;
+    
+    class UserDevice,IoTDevice,ServerNode client;
+    class DNS53,DoH,DoT,UI secure;
+    class AuthGate,ACL,Filter,Cache,Resolver,Upstreams core;
+    class Metrics,Logs monitor;
 ```
 
 ---
