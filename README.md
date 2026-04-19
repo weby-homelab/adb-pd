@@ -1,72 +1,82 @@
 # 🛡️ ADB-PD (Private DNS Adblock)
-**High-performance, modern DNS-over-HTTPS/TLS/QUIC resolver with a pro-grade Glassmorphism Dashboard.**
+**High-performance DNS-over-HTTPS/TLS/QUIC resolver with a pro-grade Glassmorphism Dashboard.**
+
+[![Docker Image Size](https://img.shields.io/docker/image-size/webyhomelab/adb-pd/latest)](https://hub.docker.com/r/webyhomelab/adb-pd)
+[![Docker Pulls](https://img.shields.io/docker/pulls/webyhomelab/adb-pd)](https://hub.docker.com/r/webyhomelab/adb-pd)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
 ## 🌍 Overview / Огляд
 
-**ADB-PD** is a lightweight, self-hosted DNS solution designed for privacy, speed, and absolute control. Unlike traditional resolvers, ADB-PD focuses on modern encrypted protocols and providing a real-time, aesthetically pleasing management experience.
+**ADB-PD** is a lightweight, self-hosted DNS solution designed for privacy, speed, and absolute control. It serves as a modern alternative to legacy DNS servers, focusing on encrypted protocols (DoH, DoT) and providing a real-time, aesthetically pleasing management experience.
 
-**ADB-PD** — це легке, приватне DNS-рішення, створене для максимальної швидкості та повного контролю. На відміну від застарілих систем, ADB-PD фокусується на сучасних зашифрованих протоколах та надає зручний інтерфейс у стилі Glassmorphism для керування вашою мережею.
+**ADB-PD** — це легке, приватне DNS-рішення, створене для максимальної швидкості та повного контролю. Це сучасна альтернатива застарілим DNS-серверам, яка фокусується на зашифрованих протоколах (DoH, DoT) та надає зручний інтерфейс у стилі Glassmorphism для моніторингу мережі в реальному часі.
 
 ---
 
 ## ✨ Key Features / Ключові можливості
 
-### 🚀 Performance & Logic
-- **Parallel Upstream Resolution:** Queries multiple DNS providers simultaneously (Google, Cloudflare, Quad9) and returns the fastest response. No more DNS lag.
-- **Conditional DNS Routing:** Route specific domains to specific servers (e.g., `[/youtube.com/]https://dns.google/dns-query`).
-- **Optimistic Caching:** Serves expired records from cache while updating them in the background.
+### 🚀 Performance & Logic / Продуктивність та логіка
+- **Parallel Upstream Resolution:** Queries multiple DNS providers simultaneously (Google, Cloudflare, Quad9) and returns the fastest response.
+- **Optimistic Caching:** Serves expired records from cache while updating them in the background to ensure zero-latency.
+- **Conditional Routing:** Custom rules to route specific domains to specific upstream servers.
 
-### 🔒 Security & Privacy
-- **Encrypted Protocols:** Native support for **DoH (HTTP/2)**, **DoT (TLS 853)**, and **Plain DNS (UDP/TCP)**.
-- **Robust ACL:** Access Control Lists based on IP, CIDR, or unique Client IDs (SNI-based for DoT).
-- **Stealth Mode:** Unauthorized clients are dropped (timeout) instead of rejected, hiding your server from scanners.
+### 🔒 Security & Privacy / Безпека та приватність
+- **Encrypted Protocols:** Native support for **DNS-over-HTTPS (DoH)** and **DNS-over-TLS (DoT)**.
+- **Stealth Mode:** Unauthorized queries are silently dropped, making the server invisible to port scanners.
+- **Robust ACL:** Advanced Access Control Lists based on IP ranges or unique Client IDs.
 
-### 🎨 Pro-Dashboard
-- **Glassmorphism UI:** A modern, blur-heavy SPA dashboard.
-- **Live Query Logs:** Real-time stream with response IPs, processing time, and rule attribution.
-- **Visual Analytics:** Interactive activity charts and top statistics.
+### 🎨 Pro-Dashboard / Адмін-панель
+- **Glassmorphism UI:** Modern, responsive SPA dashboard with blur effects and dark mode support.
+- **Live Query Logs:** Real-time stream of DNS requests with detailed timing and resolution data.
+- **Visual Analytics:** Interactive charts showing query volume, block rates, and performance metrics.
 
 ---
 
 ## 🛠 Tech Stack / Стек технологій
 - **Backend:** Python 3.12 (FastAPI, Hypercorn, DNslib)
-- **Frontend:** Vanilla HTML5 / Tailwind-inspired CSS / Chart.js
-- **Container:** Docker (Debian-slim)
+- **Frontend:** Vanilla JS / Tailwind-inspired CSS / Chart.js
+- **Container:** Docker (Alpine-based for minimal footprint)
 
 ---
 
-## 🚀 Quick Start / Швидкий старт
+## 🚀 Deployment / Розгортання
 
-### Using Docker (Recommended)
+### Docker (Recommended)
 ```bash
 docker run -d --name adb-pd \
   --network host \
-  -v /path/to/config.yaml:/app/config.yaml \
+  -v $(pwd)/config.yaml:/app/config.yaml \
   -v /etc/letsencrypt:/etc/letsencrypt:ro \
-  -v /var/log/adb-pd.log:/var/log/dna-admin.log \
   --restart always \
-  addmax/adb-pd:latest
+  webyhomelab/adb-pd:latest
+```
+
+### Configuration / Налаштування
+Copy `app/config.yaml.example` to `config.yaml` and adjust your settings:
+```yaml
+dns:
+  port: 53
+  upstreams:
+    - https://dns.google/dns-query
+    - 1.1.1.1
+auth:
+  password: "your_secure_password"
+tls:
+  enabled: true
+  cert_path: "/etc/letsencrypt/live/your-domain.com/fullchain.pem"
 ```
 
 ---
 
-## 📝 Configuration / Налаштування
-
-Copy `app/config.yaml.example` to `app/config.yaml` and update your TLS paths:
-```yaml
-tls:
-  enabled: true
-  server_name: "your-domain.com"
-  certificate_path: "/etc/letsencrypt/live/your-domain.com/fullchain.pem"
-  private_key_path: "/etc/letsencrypt/live/your-domain.com/privkey.pem"
-```
+## 📊 Monitoring / Моніторинг
+The dashboard is available at `https://your-server-ip:443/` (or the port specified in config).
 
 ---
 
 ## 🤝 Contribution
-Developed with ❤️ by **AddMax**. Feel free to fork and PR!
+Developed with ❤️ by **AddMax**. Feel free to fork and submit Pull Requests!
 
 ---
 
