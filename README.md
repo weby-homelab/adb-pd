@@ -15,7 +15,9 @@
 
 ---
 
-## 🏗 System Architecture (04.2026)
+## 🏗 System Architecture (v0.1.0-2026)
+
+ (04.2026)
 
 ```mermaid
 graph RL
