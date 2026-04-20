@@ -119,7 +119,7 @@ graph TD
 ## 🛠 Стек технологій
 - **Backend:** Python 3.12 (FastAPI, Hypercorn, DNslib)
 - **Frontend:** Vanilla JS / Tailwind-inspired CSS / Chart.js
-- **Container:** Docker (на базі Alpine)
+- **Container:** Docker (на базі Debian-Slim)
 
 ---
 
