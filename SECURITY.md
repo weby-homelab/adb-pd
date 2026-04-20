@@ -7,7 +7,7 @@ Currently, we only support security updates for the latest stable branch.
 | Version | Supported |
 | ------- | --------- |
 | 0.2.x   | ✅        |
-| 0.1.x   | ✅        |
+| 0.1.x   | ❌        |
 | < 0.1   | ❌        |
 
 ## Reporting a Vulnerability
