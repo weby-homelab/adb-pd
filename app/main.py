@@ -158,7 +158,7 @@ class DNSProxy:
         if not t.get('enabled'): return
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         ctx.load_cert_chain(t['certificate_path'], t['private_key_path'])
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.bind(('0.0.0.0', t.get('port_dot', 853))); s.listen(100)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.bind((self.config['dns'].get('bind_host', '0.0.0.0'), t.get('port_dot', 853))); s.listen(100)
         print("DNS DoT online")
         while True:
             try:
