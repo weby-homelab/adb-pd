@@ -26,7 +26,7 @@
 
 ---
 
-## 🏗 Архітектура системи (v0.1.0-2026)
+## 🏗 Архітектура системи (v0.2.0-2026)
 
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#00d4ff', 'edgeLabelBackground':'#1a1a1a', 'tertiaryColor': '#1a1a1a'}}}%%
