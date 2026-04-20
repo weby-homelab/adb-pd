@@ -25,7 +25,7 @@
 
 ---
 
-## 🏗 System Architecture (v0.1.0-2026)
+## 🏗 System Architecture (v0.2.0-2026)
 
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#00d4ff', 'edgeLabelBackground':'#1a1a1a', 'tertiaryColor': '#1a1a1a'}}}%%
@@ -118,7 +118,7 @@ graph TD
 ## 🛠 Tech Stack
 - **Backend:** Python 3.12 (FastAPI, Hypercorn, DNslib)
 - **Frontend:** Vanilla JS / Tailwind-inspired CSS / Chart.js
-- **Container:** Docker (Alpine-based)
+- **Container:** Docker (Debian-Slim-based)
 
 ---
 
