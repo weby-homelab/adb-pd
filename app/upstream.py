@@ -71,6 +71,7 @@ class ParallelResolver:
     def query_tls(self, server, port, data, hostname=None):
         ip = self.resolve_bootstrap(server)
         context = ssl.create_default_context()
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(2.0)
         try:
