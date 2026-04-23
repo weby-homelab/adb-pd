@@ -1,17 +1,12 @@
-<p align="center">
-  <a href="README_ENG.md">
-    <img src="https://img.shields.io/badge/🇬🇧_English-00D4FF?style=for-the-badge&logo=readme&logoColor=white" alt="English README">
-  </a>
-  <a href="README.md">
-    <img src="https://img.shields.io/badge/🇺🇦_Українська-FF4D00?style=for-the-badge&logo=readme&logoColor=white" alt="Українська версія">
-  </a>
-</p>
+# 🛑 PROJECT ARCHIVED / ПРОЄКТ ЗАКРИТО
+**[UKR] Цей проєкт офіційно закрито та архівовано (04.2026). Розробка перенесена у приватний стек нових систем безпеки.**
+**[ENG] This project is officially closed and archived (04.2026). Development moved to a private stack of next-gen security systems.**
 
-<br>
+---
 
+# 🛡️ ADB-PD (Private DNS Adblock) / Приватний DNS Adblock
 
-# 🛡️ ADB-PD (Приватний DNS Adblock)
-
+**High-performance DNS-over-HTTPS/TLS/QUIC resolver with a pro-grade Glassmorphism Dashboard.**
 **Високопродуктивний DNS-over-HTTPS/TLS/QUIC резолвер з професійною адмін-панеллю у стилі Glassmorphism.**
 
 [![Docker Image Size](https://img.shields.io/docker/image-size/webyhomelab/adb-pd/latest)](https://hub.docker.com/r/webyhomelab/adb-pd)
@@ -20,112 +15,50 @@
 
 ---
 
-## 🌍 Огляд
+## 🌍 Overview / Огляд
 
-**ADB-PD** — це легке, приватне DNS-рішення, створене для максимальної швидкості та повного контролю. Це сучасна альтернатива застарілим DNS-серверам, яка фокусується на зашифрованих протоколах (DoH, DoT) та надає зручний інтерфейс у стилі Glassmorphism для моніторингу мережі в реальному часі.
+**ADB-PD** is a "heavily hardened", lightweight, self-hosted DNS solution designed for absolute privacy, speed, and total control. It is a modern alternative to legacy DNS servers, focusing on encrypted protocols (DoH, DoT) and providing a "Zero Telemetry" environment. Developed in Kyiv, it transforms your DNS into a "black box" that stays strictly within your local environment.
 
----
-
-## 🏗 Архітектура системи (v0.2.0-2026)
-
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#00d4ff', 'edgeLabelBackground':'#1a1a1a', 'tertiaryColor': '#1a1a1a'}}}%%
-graph TD
-    subgraph Clients ["🌐 Рівень клієнтів"]
-        UserDevice["📱 Персональні пристрої<br/>(iOS, Android, PC)"]
-        IoTDevice["🏠 Розумний будинок / IoT"]
-        ServerNode["🖥 Віддалені сервери"]
-    end
-
-    subgraph EntryPoints ["🔒 Точки входу"]
-        DNS53["📥 Стандартний DNS<br/>(UDP/TCP 53)"]
-        DoH["🚀 DNS-over-HTTPS<br/>(JSON/Wire :443)"]
-        DoT["🔐 DNS-over-TLS<br/>(Порт 853)"]
-        UI["🎨 Адмін-панель<br/>(Glassmorphism SPA)"]
-    end
-
-    subgraph CoreEngine ["⚡ Ядро обробки ADB-PD"]
-        direction TB
-        AuthGate{"🛡 Security<br/>Gatekeeper"}
-        
-        subgraph Logic ["Логіка обробки"]
-            ACL["📋 Валідація<br/>ACL & CIDR"]
-            Filter["🚫 Фільтрація<br/>Adblock & Blacklists"]
-            Cache{"⚡ Оптимістичний<br/>LRU Кеш"}
-        end
-        
-        subgraph Resolution ["Робота з апстрімами"]
-            Resolver["📡 Паралельний<br/>рекурсивний резолвер"]
-            Upstreams["Google | Cloudflare | Quad9"]
-        end
-    end
-
-    subgraph Monitoring ["📊 Моніторинг"]
-        Metrics["📈 Статистика в реальному часі"]
-        Logs["📝 Потік запитів (Live)"]
-    end
-
-    %% Connections
-    UserDevice & IoTDevice & ServerNode ==> DNS53 & DoH & DoT
-    UI --- AuthGate
-    
-    DNS53 & DoH & DoT --> AuthGate
-    AuthGate --> ACL
-    ACL --> Filter
-    Filter --> Cache
-    
-    Cache -- "Cache Hit" --> DNS53
-    Cache -- "Cache Miss" --> Resolver
-    
-    Resolver ==>|Найшвидша відповідь| Upstreams
-    Upstreams -.->|Синхронне оновлення| Cache
-    
-    Logic -.-> Metrics
-    Logic -.-> Logs
-    
-    %% Styling
-    classDef client fill:#2a2a2a,stroke:#555,stroke-width:2px,color:#fff;
-    classDef secure fill:#1a3a5a,stroke:#00d4ff,stroke-width:2px,color:#fff;
-    classDef core fill:#1e1e1e,stroke:#7b2ff7,stroke-width:2px,color:#fff;
-    classDef monitor fill:#1a332a,stroke:#00ff88,stroke-width:2px,color:#fff;
-    
-    class UserDevice,IoTDevice,ServerNode client;
-    class DNS53,DoH,DoT,UI secure;
-    class AuthGate,ACL,Filter,Cache,Resolver,Upstreams core;
-    class Metrics,Logs monitor;
-```
+**ADB-PD** — це "максимально захищене", легке, приватне DNS-рішення, створене для абсолютної приватності, швидкості та повного контролю. Це сучасна альтернатива застарілим DNS-серверам, яка фокусується на зашифрованих протоколах (DoH, DoT) та забезпечує середовище з "нульовою телеметрією". Розроблений у Києві, цей проект перетворює ваш DNS на "чорну скриньку", яка працює виключно у вашому локальному середовищі.
 
 ---
 
-## ✨ Ключові можливості
+## ✨ Key Features / Ключові можливості
 
-### 🚀 Продуктивність та логіка
+### 🚀 Performance & Logic / Продуктивність та логіка
+- **Parallel Upstream Resolution:** Queries multiple DNS providers simultaneously (Google, Cloudflare, Quad9) and returns the fastest response.
+- **Optimistic Caching:** Serves expired records from cache while updating them in the background.
+- **Conditional Routing:** Custom rules to route specific domains to specific upstream servers.
 - **Паралельне опитування апстрімів:** Опитує декілька DNS-провайдерів одночасно (Google, Cloudflare, Quad9) та повертає найшвидшу відповідь.
 - **Оптимістичне кешування:** Віддає записи з кешу, термін дії яких закінчився, одночасно оновлюючи їх у фоновому режимі.
 - **Умовна маршрутизація:** Спеціальні правила для перенаправлення конкретних доменів на певні DNS-сервери.
 
-### 🔒 Безпека та приватність
+### 🔒 Security & Privacy / Безпека та приватність
+- **Zero Telemetry:** Physically purged updater and telemetry modules. No "phone-home" logic.
+- **Encrypted Protocols:** Native support for **DNS-over-HTTPS (DoH)** and **DNS-over-TLS (DoT)**.
+- **Stealth Mode:** Unauthorized queries are silently dropped, making the server invisible to port scanners.
+- **Нульова телеметрія:** Повністю видалені модулі оновлення та аналітики. Жодної логіки "дзвінків додому".
 - **Зашифровані протоколи:** Нативна підтримка **DNS-over-HTTPS (DoH)** та **DNS-over-TLS (DoT)**.
 - **Режим Stealth:** Неавторизовані запити просто ігноруються, що робить сервер невидимим для сканерів портів.
-- **Гнучкий ACL:** Просунуті списки контролю доступу на основі IP-діапазонів або Client ID.
 
-### 🎨 Адмін-панель
-- **Glassmorphism UI:** Сучасна SPA-панель з ефектами розмиття та адаптивним дизайном.
-- **Live-логи:** Потік DNS-запитів у реальному часі з детальною інформацією про час обробки.
-- **Візуальна аналітика:** Інтерактивні графіки обсягу запитів та ефективності фільтрації.
+### 🎨 Pro-Dashboard / Адмін-панель
+- **Glassmorphism UI:** Modern, responsive SPA dashboard with blur effects and visual analytics.
+- **Live Query Logs:** Real-time stream of DNS requests with detailed timing and rule matching.
+- **Glassmorphism UI:** Сучасна SPA-панель з ефектами розмиття, адаптивним дизайном та візуальною аналітикою.
+- **Live-логи:** Потік DNS-запитів у реальному часі з детальною інформацією про час обробки та спрацьовані правила.
 
 ---
 
-## 🛠 Стек технологій
+## 🛠 Tech Stack / Стек технологій
 - **Backend:** Python 3.12 (FastAPI, Hypercorn, DNslib)
 - **Frontend:** Vanilla JS / Tailwind-inspired CSS / Chart.js
-- **Container:** Docker (на базі Debian-Slim)
+- **Container:** Docker (Debian-Slim-based, non-root execution)
 
 ---
 
-## 🚀 Розгортання
+## 🚀 Deployment / Розгортання
 
-### Docker (Рекомендовано)
+### Docker (Recommended / Рекомендовано)
 ```bash
 docker run -d --name adb-pd \
   --network host \
@@ -137,12 +70,14 @@ docker run -d --name adb-pd \
 
 ---
 
-## 🤝 Співпраця
+## 🤝 Contribution / Співпраця
+Developed with ❤️ by **Weby Homelab**. Feel free to fork and submit Pull Requests!
 Розроблено з ❤️ командою **Weby Homelab**. Будемо раді вашим Fork та Pull Request!
 
 ---
 
-## 📜 Ліцензія
+## 📜 License / Ліцензія
+MIT License. Free for personal and commercial use.
 MIT License. Вільно для особистого та комерційного використання.
 
 <p align="center">
